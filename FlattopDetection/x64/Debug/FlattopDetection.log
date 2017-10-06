@@ -1,0 +1,5 @@
+﻿  FlattopDetection.cpp
+c:\users\rdcrlgrh\documents\visual studio 2015\projects\snowfriction\flattopdetection\flattopdetection\flattopdetection.cpp(121): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\rdcrlgrh\documents\visual studio 2015\projects\snowfriction\flattopdetection\flattopdetection\flattopdetection.cpp(283): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  FlattopDetection.vcxproj -> C:\Users\RDCRLGRH\Documents\Visual Studio 2015\Projects\SnowFriction\FlattopDetection\x64\Debug\FlattopDetection.exe
+  FlattopDetection.vcxproj -> C:\Users\RDCRLGRH\Documents\Visual Studio 2015\Projects\SnowFriction\FlattopDetection\x64\Debug\FlattopDetection.pdb (Full PDB)
