@@ -22,7 +22,12 @@ bool RecFilePath(const fs::path& path) {
 
 int main()
 {
-	string rootdir = "G:/IR/6_1_snowTribometer/";
+	//acutal directory
+	//string rootdir = "G:/IR/6_1_snowTribometer/";
+	
+	//testing directory
+	string rootdir = "G:/testing/";
+	
 	string temppath;
 	for (auto& p : fs::recursive_directory_iterator(rootdir)) {
 		//Recpath = RecFilePath(p);
@@ -239,70 +244,64 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 	image = imread(filePath, IMREAD_GRAYSCALE); // Read the file
 	//imwrite("C:/Users/RDCRLGRH/Documents/Snow Friction/ResultsShow/Original.png",image);
 
-	int kernel_filter1 = 2;
-	int kernel_filter2 = 2;
- 
 	
-	GaussianBlur(image, image, Size(2 * kernel_filter1 + 1, 2 * kernel_filter1 + 1), 0, 0);
-	medianBlur(image, image, 2 * kernel_filter2 + 1);
+	//filter
+	Mat imgFiltered = Mat::zeros(image.size(), CV_8UC1);
+	bilateralFilter(image, imgFiltered, 6, 75, 75);
 	
+
+	//gamma correction
+	int gamma = 6;
+	Mat imgGammaCorrect = Mat::zeros(imgFiltered.size(), CV_8UC1);
+	int nRows = imgFiltered.rows;
+	int nCols = imgFiltered.cols;
+
+	int i, j;
+	uchar* p;
+	for (i = 0; i < nRows; i++) {
+		for (j = 0; j < nCols; j++) {
+			imgGammaCorrect.at<uchar>(i, j) = pow((imgFiltered.at<uchar>(i, j) / 255), gamma) * 255;
+		}
+	}
+
+	//contour detection
+	Ptr<MSER> detector = MSER::create();
+	vector<vector<cv::Point>> mserContours;
+	vector<cv::Rect>mserBbox;
+	detector->detectRegions(imgGammaCorrect, mserContours, mserBbox);
+
+	Mat MSERRegions = Mat::zeros(imgGammaCorrect.size(), CV_8UC1);
+	for (vector<cv::Point> v : mserContours) {
+		for (cv::Point p : v) {
+			MSERRegions.at<uchar>(p.y, p.x) = 255;
+		}
+	}
 	
-	//int border = 1;
-	//copyMakeBorder(image, image, border, border,
-		//border, border, BORDER_CONSTANT);
-		
-	
-	Mat canny_output;
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
+	findContours(MSERRegions, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-	int thresh = 90;
-	Canny(image, canny_output, thresh, thresh * 2, 3);
-	//imwrite("C:/Users/RDCRLGRH/Documents/Snow Friction/ResultsShow/Canny.png", canny_output);
-	int morph_size = 2;
-	Mat element = getStructuringElement(MORPH_ELLIPSE, Size(2 * morph_size + 1, 2 * morph_size + 1), Point(morph_size, morph_size));
-	/// Apply the specified morphology operation
-	morphologyEx(canny_output, canny_output, MORPH_GRADIENT, element);
 
-	findContours(canny_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
-	Mat drawing = Mat::zeros(canny_output.size(), CV_8UC3);
-	Mat drawingOverlay = image.clone();
-	for (size_t i = 0; i< contours.size(); i++)
-	{
-		Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-	}
 
-	
-
-	Mat approx_drawingOverlay = Mat::zeros(canny_output.size(), CV_8UC1);
-
-	vector<vector<Point> > approx_contours = contours;
-
-	int epi = 0;
-	
-	float epi_value = epi / 10;
-
+	Mat drawingOverlay = Mat::zeros(image.size(), CV_8UC1);
 	for (int i = 0; i < contours.size(); i++) {
 		Scalar color = Scalar(255, 255, 255);
-		approxPolyDP(contours[i], approx_contours[i], epi_value, true);
-		drawContours(approx_drawingOverlay, approx_contours, (int)i, color, -1, 8, hierarchy, 0, Point());
+		drawContours(drawingOverlay, contours, (int)i, color, -1, 8, hierarchy, 0, Point());
 	}
 	
 
-	vector<vector<Point> > SecondContours;
-	findContours(approx_drawingOverlay, SecondContours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-	vector <Mat> FlatTopPixels(SecondContours.size());
+	vector <Mat> FlatTopPixels(contours.size());
 	double area = 0;
 	
-	for (int i = 0; i < SecondContours.size(); i++) {
+	for (int i = 0; i < contours.size(); i++) {
 
 		Scalar color = Scalar(255, 255, 255);
-		area = contourArea(SecondContours[i]) + area;
+		area = contourArea(contours[i]) + area;
 
 
-		Mat cimag = Mat::zeros(canny_output.size(), CV_8UC1);
+		Mat cimag = Mat::zeros(image.size(), CV_8UC1);
 
-		drawContours(cimag, SecondContours, (int)i, color, -1, 8, hierarchy, 0, Point());
+		drawContours(cimag, contours, (int)i, color, -1, 8, hierarchy, 0, Point());
 		Mat  nonZeroCoordinates;
 		findNonZero(cimag, nonZeroCoordinates);
 		FlatTopPixels[i] = nonZeroCoordinates;
@@ -315,7 +314,7 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 	}
 	//end temp
 	
-	cvtColor(approx_drawingOverlay, approx_drawingOverlay, CV_GRAY2BGR);
+	cvtColor(drawingOverlay, drawingOverlay, CV_GRAY2BGR);
 	for (int i = 0; i < FlatTopPixels.size(); i++) {
 		Mat contour = FlatTopPixels[i];
 		for (int j = 0; j < contour.total(); j++)
@@ -332,7 +331,7 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 	//namedWindow("Approx OverlayCountours", WINDOW_AUTOSIZE);
 	//imshow("Approx OverlayCountours", approx_drawingOverlay);
 	//imwrite("C:/Users/RDCRLGRH/Documents/Snow Friction/ResultsShow/Result.png", approx_drawingOverlay);
-	outPutVideo.write(approx_drawingOverlay);
+	outPutVideo.write(drawingOverlay);
 	//test
 	return FlatTopPixels;
 }

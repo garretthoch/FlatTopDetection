@@ -34,4 +34,6 @@ using namespace cv;
 
 #include <filesystem>
 namespace fs = std::experimental::filesystem;
+
+#include <cmath>
 // TODO: reference additional headers your program requires here
