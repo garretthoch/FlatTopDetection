@@ -22,12 +22,9 @@ bool RecFilePath(const fs::path& path) {
 
 int main()
 {
-	//acutal directory
 	//string rootdir = "G:/IR/6_1_snowTribometer/";
-	
-	//testing directory
 	string rootdir = "G:/testing/";
-	
+
 	string temppath;
 	for (auto& p : fs::recursive_directory_iterator(rootdir)) {
 		//Recpath = RecFilePath(p);
@@ -281,15 +278,32 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 	vector<Vec4i> hierarchy;
 	findContours(MSERRegions, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
 
+	//int border = 1;
+	//copyMakeBorder(image, image, border, border,
+		//border, border, BORDER_CONSTANT);
+		
 
 
-	Mat drawingOverlay = Mat::zeros(image.size(), CV_8UC1);
+	findContours(MSERRegions, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+	Mat drawing = Mat::zeros(MSERRegions.size(), CV_8UC3);
+	Mat drawingOverlay = image.clone();
+	for (size_t i = 0; i< contours.size(); i++)
+	{
+		Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+	}
+
+	
+
+	Mat adrawingOverlay = Mat::zeros(MSERRegions.size(), CV_8UC1);
+
+
+
 	for (int i = 0; i < contours.size(); i++) {
 		Scalar color = Scalar(255, 255, 255);
 		drawContours(drawingOverlay, contours, (int)i, color, -1, 8, hierarchy, 0, Point());
+		imshow("drawContours", drawingOverlay);
 	}
 	
-
 	vector <Mat> FlatTopPixels(contours.size());
 	double area = 0;
 	
@@ -299,7 +313,7 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 		area = contourArea(contours[i]) + area;
 
 
-		Mat cimag = Mat::zeros(image.size(), CV_8UC1);
+		Mat cimag = Mat::zeros(MSERRegions.size(), CV_8UC1);
 
 		drawContours(cimag, contours, (int)i, color, -1, 8, hierarchy, 0, Point());
 		Mat  nonZeroCoordinates;
