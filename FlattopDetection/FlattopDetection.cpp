@@ -248,7 +248,7 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 	
 
 	//gamma correction
-	int gamma = 6;
+	int gamma = .6;
 	Mat imgGammaCorrect = Mat::zeros(imgFiltered.size(), CV_8UC1);
 	int nRows = imgFiltered.rows;
 	int nCols = imgFiltered.cols;
@@ -257,7 +257,7 @@ vector <Mat> DetectBlobs(string filePath,VideoWriter outPutVideo)
 	uchar* p;
 	for (i = 0; i < nRows; i++) {
 		for (j = 0; j < nCols; j++) {
-			imgGammaCorrect.at<uchar>(i, j) = pow((imgFiltered.at<uchar>(i, j) / 255), gamma) * 255;
+			imgGammaCorrect.at<uchar>(i, j) = round(pow(float(imgFiltered.at<uchar>(i, j)) / 255.0, .6) * 255);
 		}
 	}
 

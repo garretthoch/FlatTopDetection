@@ -1,5 +1,6 @@
 ﻿  FlattopDetection.cpp
 c:\users\rdcrlgrh\documents\visual studio 2015\projects\snowfriction\flattopdetection\flattopdetection\flattopdetection.cpp(123): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\rdcrlgrh\documents\visual studio 2015\projects\snowfriction\flattopdetection\flattopdetection\flattopdetection.cpp(251): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 c:\users\rdcrlgrh\documents\visual studio 2015\projects\snowfriction\flattopdetection\flattopdetection\flattopdetection.cpp(260): warning C4244: '=': conversion from 'double' to 'uchar', possible loss of data
 c:\users\rdcrlgrh\documents\visual studio 2015\projects\snowfriction\flattopdetection\flattopdetection\flattopdetection.cpp(257): warning C4101: 'p': unreferenced local variable
   FlattopDetection.vcxproj -> C:\Users\RDCRLGRH\Documents\Visual Studio 2015\Projects\SnowFriction\FlattopDetection\x64\Debug\FlattopDetection.exe
